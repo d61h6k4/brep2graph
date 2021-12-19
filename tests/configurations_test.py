@@ -18,6 +18,7 @@ import unittest
 import numpy as np
 
 from brep2graph.configurations import simple_edge
+from brep2graph.configurations import winged_edge_plus_plus
 
 
 class SimpleEdgeTest(unittest.TestCase):
@@ -56,6 +57,38 @@ class SimpleEdgeTest(unittest.TestCase):
 
         self.assertEqual(5, g["n_node"][0])
         self.assertEqual(9 * 2, g["n_edge"][0],
+                         list(zip(g["senders"], g["receivers"])))
+
+
+class WingedEdgePP(unittest.TestCase):
+    """Test case for winged_edge_plus_plus configuration."""
+    def test_handful_example(self):
+        """Example:
+
+          |-----|-----|
+          |     |     |
+          |    0|1    |
+          | F0  |  F1 |
+          |__ __|__ __|
+
+          Here we have 1 edges and 2 coedges.
+        """
+
+        face_features = np.ones((2, 1), np.float32)
+        edge_features = np.ones((1, 1), np.float32)
+        coedge_features = np.ones((2, 1), np.float32)
+
+        coedge_to_next = np.zeros((2, ), np.int32)
+        coedge_to_mate = np.array([1, 0], np.int32)
+        coedge_to_face = np.array([0, 1])
+        coedge_to_edge = np.array([0, 0])
+
+        g = winged_edge_plus_plus(face_features, edge_features, coedge_features,
+                        coedge_to_next, coedge_to_mate, coedge_to_face,
+                        coedge_to_edge)
+
+        self.assertEqual(5, g["n_node"][0])
+        self.assertEqual(86, g["n_edge"][0],
                          list(zip(g["senders"], g["receivers"])))
 
 
