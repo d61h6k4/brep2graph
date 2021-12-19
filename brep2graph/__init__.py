@@ -14,7 +14,7 @@
 # limitations under the License.
 """The main function of the package."""
 
-from typing import Dict
+from typing import Dict, Callable
 
 import numpy as np
 
@@ -24,7 +24,10 @@ from brep2graph import brepnet_features
 from brep2graph import configurations
 
 
-def graph_from_brep(body: TopoDS_Shape) -> Dict[str, np.ndarray]:
+def graph_from_brep(
+    body: TopoDS_Shape,
+    configuration: Callable = configurations.simple_edge
+) -> Dict[str, np.ndarray]:
     """Convert given `body` to the graph representation."""
     body = brepnet_features.scale_solid_to_unit_box(body)
 
@@ -51,8 +54,7 @@ def graph_from_brep(body: TopoDS_Shape) -> Dict[str, np.ndarray]:
     coedge_to_next, coedge_to_mate, coedge_to_face, coedge_to_edge = brepnet_features.build_incidence_arrays(
         body, entity_mapper)
 
-    graph = configurations.simple_edge(face_features, edge_features,
-                                       coedge_features, coedge_to_next,
-                                       coedge_to_mate, coedge_to_face,
-                                       coedge_to_edge)
+    graph = configuration(face_features, edge_features, coedge_features,
+                          coedge_to_next, coedge_to_mate, coedge_to_face,
+                          coedge_to_edge)
     return graph
