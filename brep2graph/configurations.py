@@ -22,6 +22,348 @@ from typing import List, Tuple
 import numpy as np
 
 
+def simple_edge(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `simple edge` configuration."""
+    del coedge_to_next
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def assymetric(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `assymetric` configuration."""
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def assymetric_plus(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `assymetric_plus` configuration."""
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def assymetric_plus_plus(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `assymetric++` configuration."""
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def winged_edge(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `winged edge` configuration."""
+
+    coedge_to_prev = np.zeros_like(coedge_to_next)
+    for (from_ix, to_ix) in enumerate(coedge_to_next):
+        coedge_to_prev[to_ix] = from_ix
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
+    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
+    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+    _mpe(coedge_to_prev, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+    _p(coedge_to_prev, coedge_to_node, edges)
+    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
+    _mp(coedge_to_prev, coedge_to_node, coedge_to_mate, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def winged_edge_plus(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `winged edge+` configuration."""
+
+    coedge_to_prev = np.zeros_like(coedge_to_next)
+    for (from_ix, to_ix) in enumerate(coedge_to_next):
+        coedge_to_prev[to_ix] = from_ix
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
+    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
+    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+    _mpe(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+    _nm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+    _p(coedge_to_prev, coedge_to_node, edges)
+    _pm(coedge_to_prev, coedge_to_node, coedge_to_next, edges)
+    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
+    _mnm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+    _mp(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
+    _mpm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def winged_edge_plus_plus(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    coedge_to_next: np.ndarray,
+    coedge_to_mate: np.ndarray,
+    coedge_to_face: np.ndarray,
+    coedge_to_edge: np.ndarray,
+):
+    """Create graph according to the `winged edge++` configuration."""
+
+    coedge_to_prev = np.zeros_like(coedge_to_next)
+    for (from_ix, to_ix) in enumerate(coedge_to_next):
+        coedge_to_prev[to_ix] = from_ix
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    face_to_node = np.arange(faces_num)
+    edge_to_node = np.arange(edges_num) + faces_num
+    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
+
+    edges = []
+    # Faces
+    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
+    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
+
+    # Edges
+    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
+    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
+    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
+    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+    _mpe(coedge_to_prev, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
+    _nmne(coedge_to_node, coedge_to_next, coedge_to_mate, coedge_to_edge,
+          edges)
+    _pmpe(coedge_to_node, coedge_to_prev, coedge_to_mate, coedge_to_edge,
+          edges)
+    _mpmpe(coedge_to_node, coedge_to_prev, coedge_to_mate, coedge_to_edge,
+           edges)
+    _mnmne(coedge_to_node, coedge_to_next, coedge_to_mate, coedge_to_edge,
+           edges)
+
+    # CoEdges
+    _i(coedges_num, coedge_to_node, edges)
+    _m(coedge_to_mate, coedge_to_node, edges)
+    _n(coedge_to_next, coedge_to_node, edges)
+    _nm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+    _p(coedge_to_prev, coedge_to_node, edges)
+    _pm(coedge_to_mate, coedge_to_node, coedge_to_prev, edges)
+    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
+    _mnm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+    _mp(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
+    _mpm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
+    _nmn(coedge_to_next, coedge_to_mate, coedge_to_node, edges)
+    _pmp(coedge_to_prev, coedge_to_mate, coedge_to_node, edges)
+    _mpmp(coedge_to_prev, coedge_to_mate, coedge_to_node, edges)
+    _mnmn(coedge_to_next, coedge_to_mate, coedge_to_node, edges)
+
+    return _create_graph(face_features, edge_features, coedge_features, edges)
+
+
+def _create_graph(
+    face_features: np.ndarray,
+    edge_features: np.ndarray,
+    coedge_features: np.ndarray,
+    edges: List[Tuple[int, int]],
+):
+    """Create the graph."""
+
+    faces_num = face_features.shape[0]
+    edges_num = edge_features.shape[0]
+    coedges_num = coedge_features.shape[0]
+
+    n_node = faces_num + edges_num + coedges_num
+
+    senders = []
+    receivers = []
+    for (f, t) in edges:
+        senders.append(f)
+        receivers.append(t)
+        # don't add self-loops more than once
+        if f != t:
+            senders.append(t)
+            receivers.append(f)
+
+    assert len(senders) == len(receivers)
+    n_edge = len(senders)
+
+    nodes = np.concatenate(
+        (np.pad(face_features,
+                ((0, 0),
+                 (0, edge_features.shape[1] + coedge_features.shape[1]))),
+         np.pad(edge_features,
+                ((0, 0), (face_features.shape[1], coedge_features.shape[1]))),
+         np.pad(coedge_features,
+                ((0, 0),
+                 (face_features.shape[1] + edge_features.shape[1], 0)))))
+
+    return {
+        "n_node": np.array([n_node], dtype=np.int32),
+        "n_edge": np.array([n_edge], dtype=np.int32),
+        "nodes": nodes,
+        "senders": np.array(senders, dtype=np.int32),
+        "receivers": np.array(receivers, dtype=np.int32),
+    }
+
+
 def _f(
     coedge_to_face: np.ndarray,
     coedge_to_node: np.ndarray,
@@ -389,345 +731,3 @@ def _mnmn(
     for coedge_from_ix, coedge_to_ix in enumerate(coedge_to_mate):
         edges.append((coedge_to_node[coedge_from_ix], coedge_to_node[
             coedge_to_next[coedge_to_mate[coedge_to_next[coedge_to_ix]]]]))
-
-
-def _create_graph(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    edges: List[Tuple[int, int]],
-):
-    """Create the graph."""
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    n_node = faces_num + edges_num + coedges_num
-
-    senders = []
-    receivers = []
-    for (f, t) in edges:
-        senders.append(f)
-        receivers.append(t)
-        # don't add self-loops more than once
-        if f != t:
-            senders.append(t)
-            receivers.append(f)
-
-    assert len(senders) == len(receivers)
-    n_edge = len(senders)
-
-    nodes = np.concatenate(
-        (np.pad(face_features,
-                ((0, 0),
-                 (0, edge_features.shape[1] + coedge_features.shape[1]))),
-         np.pad(edge_features,
-                ((0, 0), (face_features.shape[1], coedge_features.shape[1]))),
-         np.pad(coedge_features,
-                ((0, 0),
-                 (face_features.shape[1] + edge_features.shape[1], 0)))))
-
-    return {
-        "n_node": np.array([n_node], dtype=np.int32),
-        "n_edge": np.array([n_edge], dtype=np.int32),
-        "nodes": nodes,
-        "senders": np.array(senders, dtype=np.int32),
-        "receivers": np.array(receivers, dtype=np.int32),
-    }
-
-
-def simple_edge(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `simple edge` configuration."""
-    del coedge_to_next
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def assymetric(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `assymetric` configuration."""
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def assymetric_plus(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `assymetric_plus` configuration."""
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def assymetric_plus_plus(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `assymetric++` configuration."""
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def winged_edge(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `winged edge` configuration."""
-
-    coedge_to_prev = np.zeros_like(coedge_to_next)
-    for (from_ix, to_ix) in enumerate(coedge_to_next):
-        coedge_to_prev[to_ix] = from_ix
-
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
-    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
-    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-    _mpe(coedge_to_prev, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-    _p(coedge_to_prev, coedge_to_node, edges)
-    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
-    _mp(coedge_to_prev, coedge_to_node, coedge_to_mate, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def winged_edge_plus(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `winged edge+` configuration."""
-
-    coedge_to_prev = np.zeros_like(coedge_to_next)
-    for (from_ix, to_ix) in enumerate(coedge_to_next):
-        coedge_to_prev[to_ix] = from_ix
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
-    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
-    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-    _mpe(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-    _nm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-    _p(coedge_to_prev, coedge_to_node, edges)
-    _pm(coedge_to_prev, coedge_to_node, coedge_to_next, edges)
-    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
-    _mnm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-    _mp(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
-    _mpm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)
-
-
-def winged_edge_plus_plus(
-    face_features: np.ndarray,
-    edge_features: np.ndarray,
-    coedge_features: np.ndarray,
-    coedge_to_next: np.ndarray,
-    coedge_to_mate: np.ndarray,
-    coedge_to_face: np.ndarray,
-    coedge_to_edge: np.ndarray,
-):
-    """Create graph according to the `winged edge++` configuration."""
-
-    coedge_to_prev = np.zeros_like(coedge_to_next)
-    for (from_ix, to_ix) in enumerate(coedge_to_next):
-        coedge_to_prev[to_ix] = from_ix
-    faces_num = face_features.shape[0]
-    edges_num = edge_features.shape[0]
-    coedges_num = coedge_features.shape[0]
-
-    face_to_node = np.arange(faces_num)
-    edge_to_node = np.arange(edges_num) + faces_num
-    coedge_to_node = np.arange(coedges_num) + (faces_num + edges_num)
-
-    edges = []
-    # Faces
-    _f(coedge_to_face, coedge_to_node, face_to_node, edges)
-    _mf(coedge_to_mate, coedge_to_node, coedge_to_face, face_to_node, edges)
-
-    # Edges
-    _e(coedge_to_edge, coedge_to_node, edge_to_node, edges)
-    _ne(coedge_to_next, coedge_to_node, coedge_to_edge, edges)
-    _pe(coedge_to_prev, coedge_to_node, coedge_to_edge, edges)
-    _mne(coedge_to_next, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-    _mpe(coedge_to_prev, coedge_to_node, coedge_to_mate, coedge_to_edge, edges)
-    _nmne(coedge_to_node, coedge_to_next, coedge_to_mate, coedge_to_edge,
-          edges)
-    _pmpe(coedge_to_node, coedge_to_prev, coedge_to_mate, coedge_to_edge,
-          edges)
-    _mpmpe(coedge_to_node, coedge_to_prev, coedge_to_mate, coedge_to_edge,
-           edges)
-    _mnmne(coedge_to_node, coedge_to_next, coedge_to_mate, coedge_to_edge,
-           edges)
-
-    # CoEdges
-    _i(coedges_num, coedge_to_node, edges)
-    _m(coedge_to_mate, coedge_to_node, edges)
-    _n(coedge_to_next, coedge_to_node, edges)
-    _nm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-    _p(coedge_to_prev, coedge_to_node, edges)
-    _pm(coedge_to_mate, coedge_to_node, coedge_to_prev, edges)
-    _mn(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
-    _mnm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-    _mp(coedge_to_next, coedge_to_node, coedge_to_mate, edges)
-    _mpm(coedge_to_mate, coedge_to_node, coedge_to_next, edges)
-    _nmn(coedge_to_next, coedge_to_mate, coedge_to_node, edges)
-    _pmp(coedge_to_prev, coedge_to_mate, coedge_to_node, edges)
-    _mpmp(coedge_to_prev, coedge_to_mate, coedge_to_node, edges)
-    _mnmn(coedge_to_next, coedge_to_mate, coedge_to_node, edges)
-
-    return _create_graph(face_features, edge_features, coedge_features, edges)

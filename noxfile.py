@@ -65,7 +65,7 @@ def lint(session):
     session.install("flake8")
     session.install("pylint")
 
-    for source in ["brep2graph", "viz", "tests"]:
+    for source in ["brep2graph", "tests"]:
         run_flake(source)
         run_pylint(source)
 
@@ -81,5 +81,5 @@ def typing(session):
     session.install("pytype")
     session.install(".")
 
-    for source in ["brep2graph", "viz", "tests"]:
+    for source in ["brep2graph", "tests"]:
         run_pytype(source)
